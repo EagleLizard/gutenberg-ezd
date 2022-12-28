@@ -1,5 +1,6 @@
 
 import { scrapeMain } from '../scrape/scrape-main';
+import { fetchBooksMain } from '../fetch-books/fetch-books-main';
 
 enum TXT_ARGS {
   SCRAPE = 'SCRAPE',
@@ -24,11 +25,11 @@ export async function txtMain(argv: string[]) {
     case TXT_ARG_MAP.SCRAPE:
       await scrapeMain();
       break;
+    case TXT_ARG_MAP.FETCH:
+      await fetchBooksMain();
+      break;
     case TXT_ARG_MAP.STRIP:
       // await stripBooksMain();
-      break;
-    case TXT_ARG_MAP.FETCH:
-      // await fetchBooks();
       break;
     case TXT_ARG_MAP.PARSE:
       // await parseBooksMain();

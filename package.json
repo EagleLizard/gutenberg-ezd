@@ -5,7 +5,8 @@
   "main": ".eslintrc.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "clean-books": "rm -rf ./data/txt-ebooks && rm data/txt-ebooks-meta/_txt-ebook-meta.json",
+    "clean-books": "rm -rf ./data/txt-ebooks",
+    "clean-books-meta": "rm data/txt-ebooks-meta/_txt-ebook-meta.json",
     "clean-stripped-books": "rm ./data/txt-ebooks-stripped/*.txt"
   },
   "repository": {
@@ -31,7 +32,7 @@
   },
   "dependencies": {
     "lodash.chunk": "^4.2.0",
-    "node-fetch": "^3.3.0",
+    "node-fetch": "^2.6.7",
     "puppeteer": "^19.4.1",
     "rimraf": "^3.0.2",
     "source-map-support": "^0.5.21"
