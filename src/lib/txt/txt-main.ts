@@ -2,6 +2,7 @@
 import { scrapeMain } from '../scrape/scrape-main';
 import { fetchBooksMain } from '../fetch-books/fetch-books-main';
 import { stripBooksMain } from '../strip-books/strip-books-main';
+import { parseBooksMain } from '../parse-books/parse-books-main';
 
 enum TXT_ARGS {
   SCRAPE = 'SCRAPE',
@@ -33,7 +34,7 @@ export async function txtMain(argv: string[]) {
       await stripBooksMain();
       break;
     case TXT_ARG_MAP.PARSE:
-      // await parseBooksMain();
+      await parseBooksMain();
       break;
     default:
       handleDefaultArg(cmdArg);

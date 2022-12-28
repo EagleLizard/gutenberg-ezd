@@ -31,9 +31,10 @@ import {
 export async function getScrapedBooksMeta(): Promise<ScrapedBookWithFile[]> {
   let bookMetaPaths: string[], visitedBookMap: Record<string, boolean>;
   let scrapedBooksWithFiles: ScrapedBookWithFile[];
+
   bookMetaPaths = await getScrapedBooksMetaPaths();
 
-  console.log(bookMetaPaths);
+  console.log(`total book meta path files: ${bookMetaPaths.length.toLocaleString()}`);
 
   visitedBookMap = {};
   scrapedBooksWithFiles = [];
