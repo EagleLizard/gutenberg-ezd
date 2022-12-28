@@ -1,0 +1,39 @@
+{
+  "name": "gutenberg-ezd",
+  "version": "1.0.0",
+  "description": "",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean-books": "rm -rf ./data/txt-ebooks && rm data/txt-ebooks-meta/_txt-ebook-meta.json",
+    "clean-stripped-books": "rm ./data/txt-ebooks-stripped/*.txt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EagleLizard/gutenberg-ezd.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EagleLizard/gutenberg-ezd/issues"
+  },
+  "homepage": "https://github.com/EagleLizard/gutenberg-ezd#readme",
+  "devDependencies": {
+    "@types/lodash.chunk": "^4.2.7",
+    "@types/node": "^18.11.18",
+    "@types/node-fetch": "^2.6.2",
+    "@types/rimraf": "^3.0.2",
+    "@types/source-map-support": "^0.5.6",
+    "@typescript-eslint/eslint-plugin": "^5.47.1",
+    "@typescript-eslint/parser": "^5.47.1",
+    "eslint": "^8.30.0",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "lodash.chunk": "^4.2.0",
+    "node-fetch": "^3.3.0",
+    "puppeteer": "^19.4.1",
+    "rimraf": "^3.0.2",
+    "source-map-support": "^0.5.21"
+  }
+}
