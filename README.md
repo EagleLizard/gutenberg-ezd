@@ -44,6 +44,21 @@ Optionally, open a separate terminal and run tsc in watch mode (_**recommended**
 tsc -w
 ```
 
+## Historical Data
+
+The `historical-data/` directory contains a result dataset from scraping the books via a daily automation from 12-09-2022 to 12-28-2022.
+
+To seed the program with this dataset, unzip the `historical-data/scraped-ebooks_12-09-2022_to_12-28-2022.zip`.
+
+The archive should unzip to a directory at `historical-data/scraped-ebooks`.
+
+Copy the contents to `data/scraped-ebooks`:
+```sh
+cp -a ./historical-data/scraped-ebooks/. ./data/scraped-ebooks/
+```
+
+This will enable the `fetch`, `strip`, and `parse` scripts to be run over all of the ebooks captured during the December 2022 collection period.
+
 ## Running the program
 
 Generally, the commands for the program should be run sequentially:
