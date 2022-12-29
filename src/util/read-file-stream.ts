@@ -55,6 +55,9 @@ export async function readFileStream(filePath: string, opts: StreamFileOpts) {
         input: rs,
         crlfDelay: Infinity,
       });
+      rl.on('error', err => {
+        reject(err);
+      });
       rl.on('line', line => {
         let lineCbResult: void | Promise<void>;
         lineCbResult = lineCb?.(line);
@@ -73,5 +76,14 @@ export async function readFileStream(filePath: string, opts: StreamFileOpts) {
     }
   });
 
-  await readPromise;
+  try {
+    return await readPromise;
+  } catch(e) {
+    const stack = (new Error(e?.message)).stack;
+    const err = {
+      ...e,
+      stack,
+    };
+    throw err;
+  }
 }
