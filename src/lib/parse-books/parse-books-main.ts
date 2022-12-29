@@ -3,10 +3,12 @@ import { Dirent } from 'fs';
 import { readdir } from 'fs/promises';
 import path from 'path';
 
-import { STRIPPED_EBOOKS_DIR_PATH } from '../../constants';
+import { OUT_DIR_PATH, STRIPPED_EBOOKS_DIR_PATH } from '../../constants';
 import { ScrapedBookWithFile } from '../../models/scraped-book';
+import { mkdirIfNotExistRecursive } from '../../util/files';
 import { getTxtBookMeta } from '../fetch-books/books-meta-service';
 import { parseCountsSync } from './parse-counts';
+import { parseWordCountsSync } from './parse-words';
 
 /*
   process.stdout.write('➤');
@@ -20,16 +22,20 @@ import { parseCountsSync } from './parse-counts';
 
 enum PARSE_ARGS {
   COUNT = 'COUNT',
+  WORD_COUNT = 'WORD_COUNT',
 }
 
 const PARSE_ARG_MAP: Record<PARSE_ARGS, string> = {
   [PARSE_ARGS.COUNT]: 'count',
+  [PARSE_ARGS.WORD_COUNT]: 'wc',
 };
 
 export async function parseBooksMain(parseArgs: string[]) {
   let baseDir: string, booksToParse: ScrapedBookWithFile[];
   let parseCmdArg: string;
   console.log('!~ parse ~!');
+
+  await initParseBooks();
 
   parseCmdArg = parseArgs[0];
 
@@ -41,6 +47,9 @@ export async function parseBooksMain(parseArgs: string[]) {
   booksToParse = await getBooksToParse(baseDir);
 
   switch(parseCmdArg) {
+    case PARSE_ARG_MAP.WORD_COUNT:
+      await parseWordCountsSync(booksToParse, baseDir);
+      break;
     case PARSE_ARG_MAP.COUNT:
     case undefined:
       await parseCountsSync(booksToParse, baseDir);
@@ -48,6 +57,10 @@ export async function parseBooksMain(parseArgs: string[]) {
     default:
       handleDefaultArg(parseCmdArg);
   }
+}
+
+async function initParseBooks() {
+  await mkdirIfNotExistRecursive(OUT_DIR_PATH);
 }
 
 function handleDefaultArg(cmdArg: string) {
@@ -94,11 +107,11 @@ function filterScrapedBooks(txtBooksMeta: ScrapedBookWithFile[]): ScrapedBookWit
   let scrapedBooks: ScrapedBookWithFile[];
   scrapedBooks = txtBooksMeta.filter(bookMeta => {
     return (
-      // bookMeta.fileName.includes('the-art-of-war-by-active-6th-century-bc-sunzi')
+      bookMeta.fileName.includes('the-art-of-war-by-active-6th-century-bc-sunzi')
       // bookMeta.fileName.startsWith('p')
       // bookMeta.fileName.startsWith('a')
       // bookMeta.fileName.startsWith('n')
-      bookMeta.fileName.startsWith('t')
+      // bookMeta.fileName.startsWith('t')
       || true
     );
   });

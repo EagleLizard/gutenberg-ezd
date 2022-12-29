@@ -48,3 +48,9 @@ export const TXT_EBOOKS_META_FILE_PATH = [
   TXT_EBOOKS_META_DIR_PATH,
   TXT_EBOOKS_META_FILE_NAME,
 ].join(path.sep);
+
+const OUT_DIR_NAME = 'out';
+export const OUT_DIR_PATH = [
+  BASE_DIR,
+  OUT_DIR_NAME,
+].join(path.sep);
