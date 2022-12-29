@@ -5,7 +5,7 @@ import { Timer } from '../../util/timer';
 import {
   CountParseCbResult,
   countParse,
-} from './parse-count';
+} from './count-parse';
 
 export async function parseCountsSync(books: ScrapedBookWithFile[], baseDir: string) {
   let doneCount: number, totalCharCount: number, totalLineCount: number;
