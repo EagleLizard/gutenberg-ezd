@@ -3,11 +3,11 @@ import { ScrapedBookWithFile } from '../../models/scraped-book';
 import { getIntuitiveTimeString } from '../../util/print-util';
 import { Timer } from '../../util/timer';
 import {
-  CharCountParseCbResult,
-  charCountParse,
-} from './parse-char-count';
+  CountParseCbResult,
+  countParse,
+} from './parse-count';
 
-export async function parseCharCountsSync(books: ScrapedBookWithFile[], baseDir: string) {
+export async function parseCountsSync(books: ScrapedBookWithFile[], baseDir: string) {
   let doneCount: number, totalCharCount: number, totalLineCount: number;
   let donePrintMod: number;
   let parseTimer: Timer, parseMs: number;
@@ -18,7 +18,7 @@ export async function parseCharCountsSync(books: ScrapedBookWithFile[], baseDir:
 
   donePrintMod = Math.ceil(books.length / 70);
 
-  const doneCb = (opts: CharCountParseCbResult) => {
+  const doneCb = (opts: CountParseCbResult) => {
     doneCount++;
     totalCharCount += opts.charCount;
     totalLineCount += opts.lineCount;
@@ -27,14 +27,14 @@ export async function parseCharCountsSync(books: ScrapedBookWithFile[], baseDir:
     }
   };
 
-  console.log(`parsing charCounts of ${books.length.toLocaleString()} books...`);
+  console.log(`parsing line & char counts of ${books.length.toLocaleString()} books...`);
 
   parseTimer = Timer.start();
 
   for(let i = 0; i < books.length; ++i) {
     let currBook: ScrapedBookWithFile;
     currBook = books[i];
-    await charCountParse({
+    await countParse({
       book: currBook,
       bookDir: baseDir,
       doneCb,

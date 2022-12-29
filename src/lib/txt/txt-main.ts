@@ -20,9 +20,11 @@ const TXT_ARG_MAP: Record<TXT_ARGS, string> = {
 
 export async function txtMain(argv: string[]) {
   let cliArgs: string[], cmdArg: string;
+  let restArgs: string[];
 
   cliArgs = argv.slice(2);
   cmdArg = cliArgs[0];
+  restArgs = cliArgs.slice(1);
   switch(cmdArg) {
     case TXT_ARG_MAP.SCRAPE:
       await scrapeMain();
@@ -34,7 +36,7 @@ export async function txtMain(argv: string[]) {
       await stripBooksMain();
       break;
     case TXT_ARG_MAP.PARSE:
-      await parseBooksMain();
+      await parseBooksMain(restArgs);
       break;
     default:
       handleDefaultArg(cmdArg);
