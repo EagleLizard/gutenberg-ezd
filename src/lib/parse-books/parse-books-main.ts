@@ -106,20 +106,21 @@ async function getBooksToParse(baseDir: string): Promise<ScrapedBookWithFile[]> 
 function filterScrapedBooks(txtBooksMeta: ScrapedBookWithFile[]): ScrapedBookWithFile[] {
   let scrapedBooks: ScrapedBookWithFile[];
   scrapedBooks = txtBooksMeta.filter(bookMeta => {
-    return (
-      bookMeta.fileName.includes('the-art-of-war-by-active-6th-century-bc-sunzi')
-      // bookMeta.fileName.startsWith('p')
-      // bookMeta.fileName.startsWith('a')
-      // bookMeta.fileName.startsWith('n')
-      // bookMeta.fileName.startsWith('t')
-      || true
-    );
+    return [
+      // bookMeta.fileName.includes('the-art-of-war-by-active-6th-century-bc-sunzi'),
+      // bookMeta.fileName.includes('the-history-of-the-decline-and-fall-of-the-roman-empire-by-edward-gibbon'),
+      // bookMeta.fileName.includes('novo-dicionário-da-língua-portuguesa-by-cândido-de-figueiredo'),
+      // bookMeta.fileName.startsWith('p'),
+      // bookMeta.fileName.startsWith('a'),
+      // bookMeta.fileName.startsWith('t'),
+      // bookMeta.fileName.startsWith('s'),
+      true,
+    ].some(condition => condition === true);
   });
   // scrapedBooks = scrapedBooks.filter(scrapedBook => {
   //   // return scrapedBook.rank <= 500;
   //   return scrapedBook.rank <= 300;
   // });
-
   return scrapedBooks;
 }
 

@@ -20,24 +20,26 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
   let doneCount: number, totalWordCount: number;
   let parseWordResults: ParseWordResult[];
   let donePrintMod: number;
-  let parseTimer: Timer, parseMs: number;
+  let totalParseTimer: Timer, totalParseMs: number;
+  let bookParseTimes: number[], bookParseTimesSumMs: number;
 
   await initParseWordCounts();
 
   totalWordCount = 0;
   doneCount = 0;
-  parseWordResults = [];
+  bookParseTimes = [];
 
   donePrintMod = Math.ceil(books.length / 70);
 
-  console.log(`parsing line & char counts of ${books.length.toLocaleString()} books...`);
+  console.log(`parsing word counts of ${books.length.toLocaleString()} books...`);
 
-  parseTimer = Timer.start();
+  totalParseTimer = Timer.start();
 
   for(let i = 0; i < books.length; ++i) {
     let currBook: ScrapedBookWithFile;
     let currWordCountMap: Record<string, number>;
     let parseWordResult: ParseWordResult;
+    let wordParseTimer: Timer, wordParseMs: number;
     currBook = books[i];
 
     const doneCb = (opts: WordParseCbResult) => {
@@ -49,20 +51,24 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
       currWordCountMap = opts.wordCountMap;
     };
 
+    wordParseTimer = Timer.start();
     await wordParse({
       book: currBook,
       bookDir: baseDir,
       doneCb,
     });
+    wordParseMs = wordParseTimer.stop();
+    bookParseTimes.push(wordParseMs);
 
-    // parseWordResult = {
-    //   book: currBook,
-    //   wordCountMap: currWordCountMap,
-    // };
+    parseWordResult = {
+      book: currBook,
+      wordCountMap: currWordCountMap,
+    };
+    // await writeWordCountMapFile(currBook, parseWordResult.wordCountMap);
     // parseWordResults.push(parseWordResult);
   }
 
-  parseMs = parseTimer.stop();
+  totalParseMs = totalParseTimer.stop();
 
   // for(let i = 0; i < parseWordResults.length; ++i) {
   //   let currParseWordResult: ParseWordResult;
@@ -70,8 +76,13 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
   //   await writeWordCountMapFile(currParseWordResult.book, currParseWordResult.wordCountMap);
   // }
 
+  bookParseTimesSumMs = bookParseTimes.reduce((acc, curr) => {
+    return acc + curr;
+  }, 0);
+
   console.log('');
-  console.log(`parsed ${doneCount.toLocaleString()} books in ${getIntuitiveTimeString(parseMs)}`);
+  console.log(`parsed ${doneCount.toLocaleString()} books in ${getIntuitiveTimeString(totalParseMs)}`);
+  console.log(`wordParseMs [sum] ${getIntuitiveTimeString(bookParseTimesSumMs)}`);
   console.log(`totalWords: ${totalWordCount.toLocaleString()}`);
 }
 

@@ -38,12 +38,14 @@ export async function wordParse(opts: WordParseOpts) {
       });
     lineWordCount = words.length;
     totalWordCount += lineWordCount;
-    // words.forEach(word => {
-    //   if(wordCountMap[word] === undefined) {
-    //     wordCountMap[word] = 0;
-    //   }
-    //   wordCountMap[word]++;
-    // });
+    for(let i = 0; i < words.length; ++i) {
+      let word: string;
+      word = words[i];
+      if(wordCountMap[word] === undefined) {
+        wordCountMap[word] = 0;
+      }
+      wordCountMap[word]++;
+    }
   };
 
   await readFileStream(filePath, {
