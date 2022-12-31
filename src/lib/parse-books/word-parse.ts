@@ -31,16 +31,14 @@ export async function wordParse(opts: WordParseOpts) {
 
   const lineCb = (line: string) => {
     let words: string[];
-    let lineWordCount: number;
-    words = line.split(' ')
-      .filter(word => {
-        return word.trim().length > 0;
-      });
-    lineWordCount = words.length;
-    totalWordCount += lineWordCount;
+    words = line.split(/[\s]+/gi);
     for(let i = 0; i < words.length; ++i) {
       let word: string;
       word = words[i];
+      if(word.length === 0) {
+        continue;
+      }
+      totalWordCount++;
       if(wordCountMap[word] === undefined) {
         wordCountMap[word] = 0;
       }
