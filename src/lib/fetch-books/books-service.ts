@@ -13,7 +13,8 @@ import { isNumber } from '../../util/validate-primitives';
 import { ScrapedBookWithFile } from '../../models/scraped-book';
 import { getScrapedBookFilePath } from './books-meta-service';
 
-const BOOK_DOWNLOAD_CHUNK_SIZE = 150;
+// const BOOK_DOWNLOAD_CHUNK_SIZE = 25;
+const BOOK_DOWNLOAD_CHUNK_SIZE = 50;
 
 export type DownloadBooksResult = {
   ms: number;

@@ -31,10 +31,24 @@ export async function wordParse(opts: WordParseOpts) {
 
   const lineCb = (line: string) => {
     let words: string[];
-    words = line.split(/[\s]+/gi);
+    // words = line.split(/[\s]+/gi);
+    words = line.split(/[\s\-–—―‐.,/:\u0097]+/gi);
     for(let i = 0; i < words.length; ++i) {
       let word: string;
       word = words[i];
+
+      // replace curly single apostrophy with generic apostrophe
+      word = word.replace(/’/gi, '\'');
+
+      // remove punctuations from beginning and end of string
+      word = word.replace(/(?:^[^\p{L}]+)|(?:[^\p{L}]+$)/giu, '');
+
+      // remove underscores
+      word = word.replace(/_/gi, '');
+
+      // remove any inner punctuation that's not an apostrophe
+      word = word.replace(/[^'^\p{L}^0-9]/gui, '');
+
       if(word.length === 0) {
         continue;
       }

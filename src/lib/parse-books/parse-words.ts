@@ -7,7 +7,7 @@ import {
   WordParseCbResult,
   wordParse,
 } from './word-parse';
-import { WORD_COUNT_OUT_DIR_PATH } from './parse-books-constants';
+import { WORD_COUNT_OUT_DIR_PATH, WORD_COUNT_PER_BOOK_OUT_DIR_PATH } from './parse-books-constants';
 import path from 'path';
 import { writeFile } from 'fs/promises';
 
@@ -23,10 +23,13 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
   let totalParseTimer: Timer, totalParseMs: number;
   let bookParseTimes: number[], bookParseTimesSumMs: number;
 
+  let totalWordCountMap: ParseWordResult['wordCountMap'];
+
   await initParseWordCounts();
 
   totalWordCount = 0;
   doneCount = 0;
+  parseWordResults = [];
   bookParseTimes = [];
 
   donePrintMod = Math.ceil(books.length / 70);
@@ -65,8 +68,10 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
       wordCountMap: currWordCountMap,
     };
     // await writeWordCountMapFile(currBook, parseWordResult.wordCountMap);
-    // parseWordResults.push(parseWordResult);
+    parseWordResults.push(parseWordResult);
   }
+
+  totalWordCountMap = getAggregateWordCountMap(parseWordResults);
 
   totalParseMs = totalParseTimer.stop();
 
@@ -81,6 +86,14 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
   }, 0);
 
   console.log('');
+  console.log(
+    Object.keys(totalWordCountMap).reduce((acc, curr) => {
+      if(isNaN(totalWordCountMap[curr])) {
+        console.log(totalWordCountMap[curr]);
+      }
+      return acc + totalWordCountMap[curr];
+    }, 0)
+  );
   console.log(`parsed ${doneCount.toLocaleString()} books in ${getIntuitiveTimeString(totalParseMs)}`);
   console.log(`wordParseMs [sum] ${getIntuitiveTimeString(bookParseTimesSumMs)}`);
   console.log(`totalWords: ${totalWordCount.toLocaleString()}`);
@@ -88,6 +101,31 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
 
 async function initParseWordCounts() {
   await mkdirIfNotExistRecursive(WORD_COUNT_OUT_DIR_PATH);
+  await mkdirIfNotExistRecursive(WORD_COUNT_PER_BOOK_OUT_DIR_PATH);
+}
+
+function getAggregateWordCountMap(parseWordResults: ParseWordResult[]): ParseWordResult['wordCountMap'] {
+  let aggregateWordCountMap: ParseWordResult['wordCountMap'];
+  aggregateWordCountMap = {};
+
+  for(let i = 0; i < parseWordResults.length; ++i) {
+    let parseWordResult: ParseWordResult;
+    let wordCountMap: ParseWordResult['wordCountMap'];
+    let wordCountMapKeys: string[];
+    parseWordResult = parseWordResults[i];
+    wordCountMap = parseWordResult.wordCountMap;
+    wordCountMapKeys = Object.keys(wordCountMap);
+    for(let k = 0; k < wordCountMapKeys.length; ++k) {
+      let wordCountMapKey: string;
+      wordCountMapKey = wordCountMapKeys[k];
+      if(aggregateWordCountMap[wordCountMapKey] === undefined) {
+        aggregateWordCountMap[wordCountMapKey] = 0;
+      }
+      aggregateWordCountMap[wordCountMapKey] += wordCountMap[wordCountMapKey];
+    }
+  }
+
+  return aggregateWordCountMap;
 }
 
 async function writeWordCountMapFile(book: ScrapedBookWithFile, wordCountMap: Record<string, number>) {
@@ -114,7 +152,8 @@ async function writeWordCountMapFile(book: ScrapedBookWithFile, wordCountMap: Re
   sortedWordCountKeys = wordCountTuples.map(wordCountTuple => wordCountTuple[0]);
   outFileName = `${book.fileName}.json`;
   outFilePath = [
-    WORD_COUNT_OUT_DIR_PATH,
+    // WORD_COUNT_OUT_DIR_PATH,
+    WORD_COUNT_PER_BOOK_OUT_DIR_PATH,
     outFileName,
   ].join(path.sep);
   outFileData = JSON.stringify(wordCountMap, sortedWordCountKeys, 2);
