@@ -67,9 +67,11 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
     parseWordResults.push(parseWordResult);
   }
 
+  totalParseMs = totalParseTimer.stop();
+
   totalWordCountMap = getAggregateWordCountMap(parseWordResults);
 
-  totalParseMs = totalParseTimer.stop();
+  await writeWordCountAggregateMapFile(totalWordCountMap);
 
   // for(let i = 0; i < parseWordResults.length; ++i) {
   //   let currParseWordResult: ParseWordResult;
@@ -119,6 +121,39 @@ function getAggregateWordCountMap(parseWordResults: ParseWordResult[]): ParseWor
   }
 
   return aggregateWordCountMap;
+}
+
+async function writeWordCountAggregateMapFile(wordCountMap: ParseWordResult['wordCountMap']) {
+  let wordCountTuples: [ string, number ][], sortedWordCountKeys: string[];
+  let outFileName: string, outFilePath: string, outFileData: string;
+  wordCountTuples = [ ...wordCountMap.keys() ].map(wordCountMapKey => {
+    return [
+      wordCountMapKey,
+      wordCountMap.get(wordCountMapKey),
+    ];
+  });
+  wordCountTuples.sort((a, b) => {
+    let aCount: number, bCount: number;
+    aCount = a[1];
+    bCount = b[1];
+    if(aCount > bCount) {
+      return -1;
+    } else if(aCount < bCount) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+  sortedWordCountKeys = wordCountTuples.map(wordCountTuple => wordCountTuple[0]);
+  outFileName = '_wc_total.json';
+  outFilePath = [
+    WORD_COUNT_OUT_DIR_PATH,
+    outFileName,
+  ].join(path.sep);
+  const wordCountJsonObj = Object.fromEntries(wordCountMap);
+  outFileData = JSON.stringify(wordCountJsonObj, sortedWordCountKeys, 2);
+  // outFileData = JSON.stringify(wordCountMap, sortedWordCountKeys, 2);
+  await writeFile(outFilePath, outFileData);
 }
 
 async function writeWordCountMapFile(book: ScrapedBookWithFile, wordCountMap: ParseWordResult['wordCountMap']) {
