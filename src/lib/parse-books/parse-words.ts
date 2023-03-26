@@ -6,15 +6,11 @@ import { Timer } from '../../util/timer';
 import {
   WordParseCbResult,
   wordParse,
+  ParseWordResult,
 } from './word-parse';
 import { WORD_COUNT_OUT_DIR_PATH, WORD_COUNT_PER_BOOK_OUT_DIR_PATH } from './parse-books-constants';
 import path from 'path';
 import { writeFile } from 'fs/promises';
-
-type ParseWordResult = {
-  book: ScrapedBookWithFile;
-  wordCountMap: Record<string, number>;
-};
 
 export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir: string) {
   let doneCount: number, totalWordCount: number;
@@ -40,7 +36,7 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
 
   for(let i = 0; i < books.length; ++i) {
     let currBook: ScrapedBookWithFile;
-    let currWordCountMap: Record<string, number>;
+    let currWordCountMap: ParseWordResult['wordCountMap'];
     let parseWordResult: ParseWordResult;
     let wordParseTimer: Timer, wordParseMs: number;
     currBook = books[i];
@@ -87,11 +83,8 @@ export async function parseWordCountsSync(books: ScrapedBookWithFile[], baseDir:
 
   console.log('');
   console.log(
-    Object.keys(totalWordCountMap).reduce((acc, curr) => {
-      if(isNaN(totalWordCountMap[curr])) {
-        console.log(totalWordCountMap[curr]);
-      }
-      return acc + totalWordCountMap[curr];
+    [ ...totalWordCountMap.keys() ].reduce((acc, curr) => {
+      return acc + totalWordCountMap.get(curr);
     }, 0)
   );
   console.log(`parsed ${doneCount.toLocaleString()} books in ${getIntuitiveTimeString(totalParseMs)}`);
@@ -106,7 +99,7 @@ async function initParseWordCounts() {
 
 function getAggregateWordCountMap(parseWordResults: ParseWordResult[]): ParseWordResult['wordCountMap'] {
   let aggregateWordCountMap: ParseWordResult['wordCountMap'];
-  aggregateWordCountMap = {};
+  aggregateWordCountMap = new Map();
 
   for(let i = 0; i < parseWordResults.length; ++i) {
     let parseWordResult: ParseWordResult;
@@ -114,27 +107,27 @@ function getAggregateWordCountMap(parseWordResults: ParseWordResult[]): ParseWor
     let wordCountMapKeys: string[];
     parseWordResult = parseWordResults[i];
     wordCountMap = parseWordResult.wordCountMap;
-    wordCountMapKeys = Object.keys(wordCountMap);
+    wordCountMapKeys = [ ...wordCountMap.keys() ];
     for(let k = 0; k < wordCountMapKeys.length; ++k) {
       let wordCountMapKey: string;
       wordCountMapKey = wordCountMapKeys[k];
-      if(aggregateWordCountMap[wordCountMapKey] === undefined) {
-        aggregateWordCountMap[wordCountMapKey] = 0;
+      if(!aggregateWordCountMap.has(wordCountMapKey)) {
+        aggregateWordCountMap.set(wordCountMapKey, 0);
       }
-      aggregateWordCountMap[wordCountMapKey] += wordCountMap[wordCountMapKey];
+      aggregateWordCountMap.set(wordCountMapKey, aggregateWordCountMap.get(wordCountMapKey) + wordCountMap.get(wordCountMapKey));
     }
   }
 
   return aggregateWordCountMap;
 }
 
-async function writeWordCountMapFile(book: ScrapedBookWithFile, wordCountMap: Record<string, number>) {
+async function writeWordCountMapFile(book: ScrapedBookWithFile, wordCountMap: ParseWordResult['wordCountMap']) {
   let wordCountTuples: [ string, number ][], sortedWordCountKeys: string[];
   let outFileName: string, outFilePath: string, outFileData: string;
-  wordCountTuples = Object.keys(wordCountMap).map(wordCountMapKey => {
+  wordCountTuples = [ ...wordCountMap.keys() ].map(wordCountMapKey => {
     return [
       wordCountMapKey,
-      wordCountMap[wordCountMapKey],
+      wordCountMap.get(wordCountMapKey),
     ];
   });
   wordCountTuples.sort((a, b) => {
@@ -156,6 +149,8 @@ async function writeWordCountMapFile(book: ScrapedBookWithFile, wordCountMap: Re
     WORD_COUNT_PER_BOOK_OUT_DIR_PATH,
     outFileName,
   ].join(path.sep);
-  outFileData = JSON.stringify(wordCountMap, sortedWordCountKeys, 2);
+  const wordCountJsonObj = Object.fromEntries(wordCountMap);
+  outFileData = JSON.stringify(wordCountJsonObj, sortedWordCountKeys, 2);
+  // outFileData = JSON.stringify(wordCountTuples, null, 2);
   await writeFile(outFilePath, outFileData);
 }

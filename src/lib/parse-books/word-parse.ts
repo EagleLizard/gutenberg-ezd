@@ -3,11 +3,16 @@ import path from 'path';
 import { ScrapedBookWithFile } from '../../models/scraped-book';
 import { readFileStream } from '../../util/read-file-stream';
 
+export type ParseWordResult = {
+  book: ScrapedBookWithFile;
+  wordCountMap: Map<string, number>;
+};
+
 export type WordParseCbResult = {
   book: ScrapedBookWithFile;
   bookFilePath: string;
   wordCount: number;
-  wordCountMap: Record<string, number>;
+  wordCountMap: ParseWordResult['wordCountMap'];
 };
 
 type WordParseOpts = {
@@ -18,7 +23,7 @@ type WordParseOpts = {
 
 export async function wordParse(opts: WordParseOpts) {
   let fileName: string, filePath: string;
-  let totalWordCount: number, wordCountMap: Record<string, number>;
+  let totalWordCount: number, wordCountMap: ParseWordResult['wordCountMap'];
 
   fileName = `${opts.book.fileName}.txt`;
   filePath = [
@@ -27,7 +32,7 @@ export async function wordParse(opts: WordParseOpts) {
   ].join(path.sep);
 
   totalWordCount = 0;
-  wordCountMap = {};
+  wordCountMap = new Map();
 
   const lineCb = (line: string) => {
     let words: string[];
@@ -53,10 +58,10 @@ export async function wordParse(opts: WordParseOpts) {
         continue;
       }
       totalWordCount++;
-      if(wordCountMap[word] === undefined) {
-        wordCountMap[word] = 0;
+      if(!wordCountMap.has(word)) {
+        wordCountMap.set(word, 0);
       }
-      wordCountMap[word]++;
+      wordCountMap.set(word, wordCountMap.get(word) + 1);
     }
   };
 
