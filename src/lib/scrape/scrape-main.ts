@@ -13,14 +13,25 @@ import {
 import { mkdirIfNotExistRecursive } from '../../util/files';
 import { MAX_CONCURRENT_PAGES } from './scrape-top/scrape-pages';
 
+enum SCRAPE_ARGS {
+  TOP_100 = 'TOP_100',
+  TOP_1000 = 'TOP_1000',
+}
+
+const SCRAPE_ARG_MAP: Record<SCRAPE_ARGS, string> = {
+  [SCRAPE_ARGS.TOP_100]: '100',
+  [SCRAPE_ARGS.TOP_1000]: '1k',
+};
+
 type GetPuppeteerLaunchArgsParams = {
   viewportWidth: number;
   viewportHeight: number;
 };
 
-export async function scrapeMain() {
+export async function scrapeMain(scrapeArgs: string[]) {
   let browser: puppeteer.Browser, launchArgs: string[];
   let viewportWidth: number, viewportHeight: number;
+  let scrapeArg: string;
   console.log(`MAX_CONCURRENT_PAGES: ${MAX_CONCURRENT_PAGES}`);
   console.log('!~ scrape ~!');
 
@@ -42,8 +53,22 @@ export async function scrapeMain() {
     userDataDir: `${DATA_DIR_PATH}${path.sep}chromium_user`
   });
 
-  await scrapeTop100(browser);
-  await scrapeTop1000(browser);
+  scrapeArg = scrapeArgs[0] ?? '';
+
+  console.log(scrapeArg);
+
+  switch(scrapeArg) {
+    case SCRAPE_ARG_MAP.TOP_1000:
+      await scrapeTop1000(browser);
+      break;
+    case SCRAPE_ARG_MAP.TOP_100:
+    default:
+      // handles the default case if invalid
+      if(scrapeArg.trim() !== '') {
+        throw new Error(`Invalid scrape argument: '${scrapeArg}'`);
+      }
+      await scrapeTop100(browser);
+  }
 
   await browser.close();
 }

@@ -27,7 +27,7 @@ export async function txtMain(argv: string[]) {
   restArgs = cliArgs.slice(1);
   switch(cmdArg) {
     case TXT_ARG_MAP.SCRAPE:
-      await scrapeMain();
+      await scrapeMain(restArgs);
       break;
     case TXT_ARG_MAP.FETCH:
       await fetchBooksMain();
