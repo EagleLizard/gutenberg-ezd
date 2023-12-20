@@ -80,6 +80,18 @@ For example, `scrape` can be run on a daily basis to aggregate metadata for each
 node dist/main.js scrape
 ```
 
+By default, this is the same as:
+
+```sh
+node dist/main.js scrape 100
+```
+
+To fetch the top 1000 list, run:
+
+```sh
+node dist/main.js scrape 1k
+```
+
 Runs puppeteer in Chrome headless mode to scrape **today's** top100 / top1000 ebooks. Fetches from the following source pages:
 
 top 100: https://www.gutenberg.org/browse/scores/top
